@@ -12,7 +12,7 @@
    
 ### How to Run project
 ```
-./main
+./tfe
 ```
 ### Functionality Terminal File Explorer 
 File explorer is work in two modes. 

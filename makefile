@@ -5,6 +5,10 @@ OBJ = mydirectoryfunction.o main.o
 %.o: %.cpp $(DEPS)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-main: $(OBJ)
+tfe: $(OBJ)
 	$(CC) $(CFLAGS) -o $@ $^
+	rm -rf *o
+
+clean:
+	rm -rf *o tfe
 

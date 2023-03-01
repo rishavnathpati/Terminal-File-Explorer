@@ -10,5 +10,5 @@
 
 using namespace std;
 
-void openDirecoty(const char *path);
+void openDirectory(const char *path);
 void display(const char *dirName, const char *root);

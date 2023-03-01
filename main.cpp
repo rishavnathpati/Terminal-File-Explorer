@@ -2,6 +2,13 @@
 
 char *root;
 
+/* Here is the explanation for the code below:
+1. stat() function returns the information about the file in structure sb.
+2. (sb.st_mode & S_IFMT) is a mask which extracts file type information.
+3. (sb.st_mode & S_IFMT) == S_IFDIR is a comparison which checks whether the file is a directory or not.
+4. (sb.st_mode & S_IFMT) == S_IFREG is a comparison which checks whether the file is a regular file or not. */
+
+/// @brief Function to open Directory Content
 void checkFile()
 {
 	struct stat sb;
@@ -18,48 +25,63 @@ void checkFile()
 	{
 		cout << "unknown?" << endl;
 	}
-
-	// printf( (S_ISDIR(fileStat.st_mode)) ? "d" : "-");
-	// if (S_ISREG(mode))
-	//        c = '-';
-	//    else if (S_ISDIR(mode))
-	//        c = 'd';
-	//    else if (S_ISBLK(mode))
-	//        c = 'b';
-	//    else if (S_ISCHR(mode))
-	//        c = 'c';
 }
+
+/*Function to open Directory Content
+1. The main function takes two arguments.
+	The first argument is the directory name which is to be searched for the files.
+	And the second argument is the pattern to be searched.
+2. The root is the directory path which is to be searched.
+	If the first argument is not passed to the program, then the current directory is taken as the root directory.
+3. The openDirectory function takes a directory name as the argument and opens it.
+	It then reads the directory and checks if it is a file or a directory.
+	If it is a file then it checks if the file name matches the pattern.
+	If it is a directory then it calls the openDirectory function recursively for the sub-directory.
+4. The openDirectory function is called recursively until all the sub-directories are searched for the given pattern.
+5. The files which match the given pattern are printed on the screen. */
 
 int main(int argc, char *argv[])
 {
 
 	if (argc == 1)
 	{
-		openDirecoty(".");
+		openDirectory(".");
 	}
 	else if (argc == 2)
 	{
 		root = argv[1];
-		openDirecoty(argv[1]);
+		openDirectory(argv[1]);
 	}
 	else
 	{
 		cout << "Invalid Argument !!!" << endl;
 	}
-	// checkFile();
-	// chmod("Assi-1.cpp", S_IRWXU|S_IRWXG|S_IROTH|S_IWOTH);
-	// int mkdir(const char *path, mode_t mode)                      page No: 121
-	// int rmdir(const char *path);
 	return 0;
 }
 
-/* Here is the explanation for the code above:
-1. stat() is used to get the status of a file. This function returns 0 on success, and -1 on error.
-2. st_mode contains the file type and the file permission bits. These are defined in the header file sys/stat.h.
-You can use the macros defined in the header file like S_ISDIR(), S_ISREG() etc. to determine the file type.
-3. S_IFMT is a bitmask that extracts the file type bits from the mode.
-4. S_IFDIR is the bit mask for a directory.
-5. S_IFREG is the bit mask for a regular file.
-6. S_IFMT is the bit mask for the file type bit fields.
-7. S_ISDIR() is a macro that returns true if the mode is that of a directory.
-8. S_ISREG() is a macro that returns true if the mode is that of a regular file. */
+/* The stat structure is defined in sys/stat.h. It contains the following members:
+
+struct stat {
+	dev_t     st_dev;         ID of device containing file
+	ino_t     st_ino;         inode number
+	mode_t    st_mode;        protection
+	nlink_t   st_nlink;       number of hard links
+	uid_t     st_uid;         user ID of owner
+	gid_t     st_gid;         group ID of owner
+	dev_t     st_rdev;        device ID (if special file)
+	off_t     st_size;        total size, in bytes
+	blksize_t st_blksize;     blocksize for filesystem I/O
+	blkcnt_t  st_blocks;      number of 512B blocks allocated
+
+	time_t    st_atime;       time of last access
+	time_t    st_mtime;       time of last modification
+	time_t    st_ctime;       time of last status change
+};
+
+2. The stat() function returns 0 on success, and -1 on error. It takes the following arguments:
+
+int stat(const char *path, struct stat *buf);
+
+path: The path of the file/directory whose metadata is to be displayed.
+
+buf: A pointer to a stat structure which will be filled by stat().*/

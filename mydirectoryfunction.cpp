@@ -1,8 +1,23 @@
 #include "myheader.h"
 
-//************************************************************************
-// Function to open Directory Content
-//************************************************************************
+/*
+1. DIR is a pointer to the directory stream. The type DIR is declared in dirent.h.
+2. struct dirent is a structure for directory entry. The type struct dirent is declared in dirent.h.
+3. The variable d is a pointer to the directory stream.
+4. The variable dir is a pointer to the directory entry.
+
+1. The openDirectory() function accepts the path of the directory as the argument.
+	The path of the directory is passed as a character array from the main function.
+2. The opendir() function opens the directory and if it's successful it returns a pointer of type DIR which is assigned to d.
+	Else it prints out an error message.
+3. The while loop checks if the directory is empty or not.
+	If it's not empty, it reads the directory and stores it in a pointer of type struct dirent which is assigned to dir.
+4. The display() function is called with the name of the file and the path of the directory as the argument.
+5. The closedir() function closes the directory.
+*/
+
+/// @brief Function to open Directory Content
+/// @param path Path of the directory
 void openDirectory(const char *path)
 {
 	DIR *d;
@@ -14,7 +29,6 @@ void openDirectory(const char *path)
 
 		while ((dir = readdir(d)) != NULL)
 		{
-			// printf("\n%-10s", dir->d_name);
 			display((dir->d_name), path);
 		}
 
@@ -26,17 +40,40 @@ void openDirectory(const char *path)
 	}
 }
 
-//************************************************************************
-// Function to display file/Directory's MetaDta
-//************************************************************************
+/*
+1. The function takes two parameters.
+	The first parameter is the name of the directory that is going to be displayed.
+	The second parameter is the root directory of the file system.
+2. We declare a string object with the name finalpath.
+	The value of finalpath is the concatenation of the root directory and the name of the directory that is going to be displayed.
+3. We declare a character pointer with the name path. We allocate memory for the path variable using the new operator.
+	The size of the memory allocated is the length of the string stored in the finalpath variable plus one.
+	The plus one is necessary because the character array must be null-terminated.
+4. We use the strcpy function to copy the contents of the string stored in the finalpath variable to the character array stored in the path variable.
+5. We declare a stat structure with the name sb. We use the stat function to retrieve information about the file system object that is specified by the path argument.
+	The information is stored in the sb variable.
+6. If the stat function returns -1, an error occurred.
+7. We use the printf function to display the name of the directory that is going to be displayed.
+8. We use the printf function to display the permission bits of the file system object.
+	The permission bits are stored in the st_mode member of the stat structure.
+	We use the bitwise AND operator & to check whether the permission bits are set or not.
+	If the permission bits are set, we display the corresponding character.
+	If the permission bits are not set, we display a hyphen (-) character.
+9. We use the printf function to display the size of the file system object.
+	The size of the file system object is stored in the st_size member of the stat structure.
+10. We use the printf function to display the last modification time of the file system object.
+	The last modification time of the file system object is stored in the st_mtime member of the stat structure.
+	We use the ctime function to convert the modification time to a human-readable format.
+*/
+
+/// @brief Function to display file/Directory's MetaData
+/// @param dirName Name of the file/directory
+/// @param root Path of the directory
 void display(const char *dirName, const char *root)
 {
 	string finalpath = string(root) + "/" + string(dirName);
-	;
 	char *path = new char[finalpath.length() + 1];
 	strcpy(path, finalpath.c_str());
-	// cout<<finalpath<<endl;
-	// cout<<path<<endl;
 
 	struct stat sb;
 	if (stat(path, &sb) == -1)
@@ -56,39 +93,16 @@ void display(const char *dirName, const char *root)
 	printf((sb.st_mode & S_IROTH) ? "r" : "-");
 	printf((sb.st_mode & S_IWOTH) ? "w" : "-");
 	printf((sb.st_mode & S_IXOTH) ? "x" : "-");
+	printf((sb.st_mode & S_ISUID) ? "s" : "-");
+	printf((sb.st_mode & S_ISGID) ? "s" : "-");
+	printf((sb.st_mode & S_ISVTX) ? "t" : "-");
 	printf("\t%10lld bytes", (long long)sb.st_size);
 	printf("\t%s ", ctime(&sb.st_mtime));
 }
 
-/* Here is the explanation for the code above:
-1. The stat structure is defined in sys/stat.h. It contains the following members:
+/*
 
-struct stat {
-    dev_t     st_dev;         ID of device containing file 
-    ino_t     st_ino;         inode number 
-    mode_t    st_mode;        protection 
-    nlink_t   st_nlink;       number of hard links 
-    uid_t     st_uid;         user ID of owner 
-    gid_t     st_gid;         group ID of owner 
-    dev_t     st_rdev;        device ID (if special file) 
-    off_t     st_size;        total size, in bytes 
-    blksize_t st_blksize;     blocksize for filesystem I/O 
-    blkcnt_t  st_blocks;      number of 512B blocks allocated 
-
-    time_t    st_atime;       time of last access 
-    time_t    st_mtime;       time of last modification 
-    time_t    st_ctime;       time of last status change 
-};
-
-2. The stat() function is defined in sys/stat.h. It returns 0 on success, and -1 on error. It takes the following arguments:
-
-int stat(const char *path, struct stat *buf);
-
-path: The path of the file/directory whose metadata is to be displayed.
-
-buf: A pointer to a stat structure which will be filled by stat().
-
-3. The following macros are used to check the permissions of the file/directory:
+The following macros are used to check the permissions of the file/directory:
 
 S_IRUSR: Read permission, owner
 S_IWUSR: Write permission, owner
@@ -102,61 +116,4 @@ S_IXOTH: Execute/search permission, others
 S_ISUID: Set-user-ID on execution
 S_ISGID: Set-group-ID on execution
 S_ISVTX: On directories, restricted deletion flag
-
-The following code snippet shows the use of the stat() function to display the metadata of a file:
-
-#include <sys/stat.h>
-#include <stdio.h>
-
-int main() {
-    struct stat sb;
-
-    stat("sample.txt", &sb);
-
-    printf("File Size: \t\t%lld bytes
-
-", (long long) sb.st_size);
-    printf("Number of Links: \t%ld
-
-", (long long) sb.st_nlink);
-    printf("File inode: \t\t%ld
-
-", (long long) sb.st_ino);
-
-    return 0;
-}
-
-The output of the above code is:
-
-File Size: 		12 bytes
-Number of Links: 	1
-File inode: 		2621440
-
-The following code snippet shows the use of the stat() function to display the metadata of a directory:
-
-#include <sys/stat.h>
-#include <stdio.h>
-
-int main() {
-    struct stat sb;
-
-    stat(".", &sb);
-
-    printf("Total size: \t\t%lld bytes
-
-", (long long) sb.st_size);
-    printf("Number of Links: \t%ld
-
-", (long long) sb.st_nlink);
-    printf("File inode: \t\t%ld
-
-", (long long) sb.st_ino);
-
-    return 0;
-}
-
-The output of the above code is:
-
-Total size: 		4096 bytes
-Number of Links: 	3
-File inode: 		2621440 */
+*/
