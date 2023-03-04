@@ -22,7 +22,7 @@ void openDirectory(const char *path)
 {
 	DIR *d;
 	struct dirent *dir;
-
+	system("clear");
 	d = opendir(path);
 	if (d)
 	{
@@ -81,7 +81,6 @@ void display(const char *dirName, const char *root)
 		perror("lstat");
 	}
 
-	printf("\n");
 	printf("%-20s", dirName);
 	printf("\t");
 	printf((sb.st_mode & S_IRUSR) ? "r" : "-");

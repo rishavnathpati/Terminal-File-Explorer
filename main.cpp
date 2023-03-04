@@ -21,10 +21,6 @@ void checkFile()
 	{
 		cout << "FILE" << endl;
 	}
-	else
-	{
-		cout << "unknown?" << endl;
-	}
 }
 
 /*Function to open Directory Content
@@ -42,7 +38,6 @@ void checkFile()
 
 int main(int argc, char *argv[])
 {
-
 	if (argc == 1)
 	{
 		openDirectory(".");
@@ -56,6 +51,8 @@ int main(int argc, char *argv[])
 	{
 		cout << "Invalid Argument !!!" << endl;
 	}
+
+	navigate();
 	return 0;
 }
 
