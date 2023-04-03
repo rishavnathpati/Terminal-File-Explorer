@@ -1,4 +1,4 @@
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 #include <iostream>
 #include <string>
 #include <stdio.h>
@@ -7,11 +7,13 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <dirent.h>
-#include<termios.h>
+#include <termios.h>
 
 using namespace std;
 
 extern char *root;
+extern stack<string> bkspace_stack;
+extern vector<string> dirList;
 
 void openDirectory(const char *path);
 void display(const char *dirName, const char *root);

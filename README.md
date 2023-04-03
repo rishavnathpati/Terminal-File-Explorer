@@ -15,8 +15,8 @@
 ./tfe
 ```
 ### Functionality Terminal File Explorer 
-File explorer is work in two modes. 
-The application is start in normal mode, which is the default mode and used to explore the current directory and navigate around in the filesystem.
+File explorer works in two modes. 
+The application starts in normal mode, which is the default mode and used to explore the current directory and navigate around in the filesystem.
 <br/>
 The root of the application is the directory where the application was started.
 <br/>
