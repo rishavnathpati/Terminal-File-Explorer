@@ -6,36 +6,39 @@
 //**********************************************************************
 // Declaration of global variables
 //**********************************************************************
-vector< string > dirList;
+vector<string> dirList;
 unsigned int totalFiles;
 int wintrack;
 
 //**********************************************************************
 // Method returns total number of files + Directory withing given path
 //**********************************************************************
-int getDirectoryCount(const char * path)
+int getDirectoryCount(const char *path)
 {
-	int count=0;
+	int count = 0;
 	dirList.clear();
 	DIR *d;
 	struct dirent *dir;
 	d = opendir(path);
-	if (d) {
+	if (d)
+	{
 
-	    while ((dir = readdir(d)) != NULL) {
-	      //printf("\n%-10s", dir->d_name);
-	      if( (string(dir->d_name) == "..") && (strcmp(path,root) == 0))	
-	      {   } 
-	  	  else{
-	  	  		dirList.push_back(string(dir->d_name));	
-	  	  		count++;
-	  	   }
-
-	    }
-	    closedir(d);
+		while ((dir = readdir(d)) != NULL)
+		{
+			// printf("\n%-10s", dir->d_name);
+			if ((string(dir->d_name) == "..") && (strcmp(path, root) == 0))
+			{
+			}
+			else
+			{
+				dirList.push_back(string(dir->d_name));
+				count++;
+			}
+		}
+		closedir(d);
 	}
-	else{
-	
+	else
+	{
 	}
 	return count;
 }
@@ -47,7 +50,6 @@ int getDirectoryCount(const char * path)
 4. The if statement in lines 18-21 checks if the current directory is the root directory. If it is, then the ".." directory is not included in the count or the dirList vector.
 5. The else statement in line 22 adds the name of the file to the dirList vector and increments the count variable. */
 
-
 //************************************************************************
 // function that prints directory/file within given terminal size
 //************************************************************************
@@ -57,36 +59,40 @@ void openDirectory(const char *path)
 	DIR *d;
 	totalFiles = getDirectoryCount(path);
 	int len = getFilePrintingcount();
-	//sort(dirList.begin(),dirList.end());
-	int itr=1;
-	wintrack=0;
+	// sort(dirList.begin(),dirList.end());
+	int itr = 1;
+	wintrack = 0;
 	struct dirent *dir;
 	printf("\033[H\033[J");
-	printf("%c[%d;%dH",27,1,1);
-	//cout<<"\n*******total files  : "<<totalFiles<<endl;
-	//cout<<"\n***********total files needs to be printed : "<<len<<endl;
+	printf("%c[%d;%dH", 27, 1, 1);
+	// cout<<"\n*******total files  : "<<totalFiles<<endl;
+	// cout<<"\n***********total files needs to be printed : "<<len<<endl;
 	d = opendir(path);
-	//printf("\n");
-	if (d) {
+	// printf("\n");
+	if (d)
+	{
 
-	    while (((dir = readdir(d)) != NULL) && (itr<=len)){
-	      //printf("\n%-10s", dir->d_name);
-	      if( (string(dir->d_name) == "..") && (strcmp(path,root) == 0))	
-	      {   } 
-	  	  else{
+		while (((dir = readdir(d)) != NULL) && (itr <= len))
+		{
+			// printf("\n%-10s", dir->d_name);
+			if ((string(dir->d_name) == "..") && (strcmp(path, root) == 0))
+			{
+			}
+			else
+			{
 
-	      		display((dir->d_name), path);
-	      		itr++;
-	  	   }
+				display((dir->d_name), path);
+				itr++;
+			}
+		}
 
-	    }
-
-	    closedir(d);
+		closedir(d);
 	}
-	else{
-		//perror(d);
+	else
+	{
+		// perror(d);
 	}
-	printf("%c[%d;%dH",27,0,1);
+	printf("%c[%d;%dH", 27, 0, 1);
 }
 
 /* Here is the explanation for the code above:
@@ -101,57 +107,56 @@ void openDirectory(const char *path)
 9. The closedir() function is used to close the directory.
 10. The printf() function is used to set the cursor position to 0,0. This is done so that the cursor is at the top of the screen when the user goes to the previous directory. */
 
-
 //************************************************************************
 // function to display file/Directory's MetaDta
 //************************************************************************
 void display(const char *dirName, const char *root)
 {
-	string finalpath=string(root) + "/" +string(dirName);;
-	char* path = new char[finalpath.length() + 1];
+	string finalpath = string(root) + "/" + string(dirName);
+	;
+	char *path = new char[finalpath.length() + 1];
 	strcpy(path, finalpath.c_str());
-	//cout<<finalpath<<endl;
-	//cout<<path<<endl;
+	// cout<<finalpath<<endl;
+	// cout<<path<<endl;
 
 	struct stat sb;
-	if (stat(path,&sb) == -1) {
-               perror("lstat");
-    }
-    
-    printf(  (S_ISDIR(sb.st_mode)) ? "d" : "-");
-	printf( (sb.st_mode & S_IRUSR) ? "r" : "-");
-    printf( (sb.st_mode & S_IWUSR) ? "w" : "-");
-    printf( (sb.st_mode & S_IXUSR) ? "x" : "-");
-    printf( (sb.st_mode & S_IRGRP) ? "r" : "-");
-    printf( (sb.st_mode & S_IWGRP) ? "w" : "-");
-    printf( (sb.st_mode & S_IXGRP) ? "x" : "-");
-    printf( (sb.st_mode & S_IROTH) ? "r" : "-");
-    printf( (sb.st_mode & S_IWOTH) ? "w" : "-");
-    printf( (sb.st_mode & S_IXOTH) ? "x" : "-");
+	if (stat(path, &sb) == -1)
+	{
+		perror("lstat");
+	}
 
-    //stat(filename, &info);  // Error check omitted
+	printf((S_ISDIR(sb.st_mode)) ? "d" : "-");
+	printf((sb.st_mode & S_IRUSR) ? "r" : "-");
+	printf((sb.st_mode & S_IWUSR) ? "w" : "-");
+	printf((sb.st_mode & S_IXUSR) ? "x" : "-");
+	printf((sb.st_mode & S_IRGRP) ? "r" : "-");
+	printf((sb.st_mode & S_IWGRP) ? "w" : "-");
+	printf((sb.st_mode & S_IXGRP) ? "x" : "-");
+	printf((sb.st_mode & S_IROTH) ? "r" : "-");
+	printf((sb.st_mode & S_IWOTH) ? "w" : "-");
+	printf((sb.st_mode & S_IXOTH) ? "x" : "-");
+
+	// stat(filename, &info);  // Error check omitted
 	struct passwd *pw = getpwuid(sb.st_uid);
-	struct group  *gr = getgrgid(sb.st_gid);
-	if(pw != 0)
+	struct group *gr = getgrgid(sb.st_gid);
+	if (pw != 0)
 		printf("\t%s", pw->pw_name);
-	if(gr != 0)
+	if (gr != 0)
 		printf(" %s", gr->gr_name);
 
-	printf("\t%10.2fK", ((double) sb.st_size)/1024);
-	char *tt=(ctime(&sb.st_mtime));
-	tt[strlen(tt)-1]='\0';
-	printf("\t%s",tt);
-	
-	printf("\t%s\n",dirName);
+	printf("\t%10.2fK", ((double)sb.st_size) / 1024);
+	char *tt = (ctime(&sb.st_mtime));
+	tt[strlen(tt) - 1] = '\0';
+	printf("\t%s", tt);
+
+	printf("\t%s\n", dirName);
 }
 
 /* Here is the explanation for the code above:
-1. The first thing you need to do is to check the mode of the file, which is stored in the sb.st_mode. 
-	You can use the S_ISDIR() macro to check if the file is a directory. 
-	If it is a directory, you can use the opendir() function to open the directory and use the readdir() function to read the directory entries. 
-	You can use the strcmp() function to check if the directory entry name is "." or "..", if so, ignore it. 
-	Otherwise, you need to call the display() function recursively to display the information of the directory entry. 
+1. The first thing you need to do is to check the mode of the file, which is stored in the sb.st_mode.
+	You can use the S_ISDIR() macro to check if the file is a directory.
+	If it is a directory, you can use the opendir() function to open the directory and use the readdir() function to read the directory entries.
+	You can use the strcmp() function to check if the directory entry name is "." or "..", if so, ignore it.
+	Otherwise, you need to call the display() function recursively to display the information of the directory entry.
 	Remember to use the strcat() function to concatenate the directory path and directory entry name to form the path of the directory entry.
 2. If the file is not a directory, you can use the printf() function to display the mode, size, modification time, and name of the file. */
-
-
