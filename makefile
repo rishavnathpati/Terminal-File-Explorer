@@ -1,14 +1,13 @@
 CC = g++
 CFLAGS = -Wall 
 DEPS = myheader.h 
-OBJ = mydirectoryfunction.o navigate.o scrolling.o main.o
+OBJ = mydirectoryfunction.o navigate.o scrolling.o commandmode.o create_dir.o delete_dir.o create_delete_files.o extra_utility.o copycommand.o movecommand.o snapshot.o searchcommand.o main.o
 %.o: %.cpp $(DEPS)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-tfe: $(OBJ)
+main: $(OBJ)
 	$(CC) $(CFLAGS) -o $@ $^
 	rm -rf *o
 
 clean:
-	rm -rf *o tfe
-
+	rm -rf *o main

@@ -1,11 +1,28 @@
+
+
+//**********************************************************************
+// This File is used to navigate through using arrow key,Home,Enter
+// backspace and allow scrolling through list
+//**********************************************************************
+
+//**********************************************************************
+// Header file Included
+//**********************************************************************
 #include "myheader.h"
 
-unsigned int xcor = 1, ycor = 1;
+//**********************************************************************
+// Global Declaration & #defined macros
+//**********************************************************************
+unsigned int xcor = 1, ycor = 80;
 char *curPath;
 #define esc 27
 #define cls printf("%c[2J", esc)
 #define pos() printf("%c[%d;%dH", esc, xcor, ycor)
+#define posx(x, y) printf("%c[%d;%dH", esc, x, y)
 
+//**********************************************************************
+// Method that update current path when backspace key pressed
+//**********************************************************************
 void setBackPath(char *path)
 {
 	size_t pos;
@@ -15,6 +32,10 @@ void setBackPath(char *path)
 	newPath = tempPath.substr(0, pos);
 	strcpy(curPath, newPath.c_str());
 }
+
+//**********************************************************************
+// This Method Clear the stack contents
+//**********************************************************************
 void clearStack(stack<string> &s)
 {
 	while (!s.empty())
@@ -22,16 +43,20 @@ void clearStack(stack<string> &s)
 		s.pop();
 	}
 }
+
+//**********************************************************************
+// Method for navigation on key press in a Normal mode
+//**********************************************************************
 void navigate()
 {
 
 	curPath = root;
-	xcor = 1, ycor = 1;
+	xcor = 1, ycor = 80;
 	pos();
-	struct termios initialrsettings, newrsettings;
 	char ch;
-	tcgetattr(fileno(stdin), &initialrsettings);
 
+	struct termios initialrsettings, newrsettings;
+	tcgetattr(fileno(stdin), &initialrsettings);
 	// switch to canonical mode and echo mode
 	newrsettings = initialrsettings;
 	newrsettings.c_lflag &= ~ICANON;
@@ -46,9 +71,12 @@ void navigate()
 
 		while (1)
 		{
-			ch = cin.get();
+			int lastLine = rowsize + 1;
+			posx(lastLine, 1);
+			cout << "-----NORMAL MODE-----";
+			pos();
 
-			// printf("%d",ch);
+			ch = cin.get();
 			if (ch == 27)
 			{
 				ch = cin.get();
@@ -59,7 +87,6 @@ void navigate()
 				{
 					if (xcor + wintrack > 1)
 					{
-						// cout<<"**********xcor"<<xcor<<"*****wintrack"<<wintrack<<endl;
 						xcor--;
 						if (xcor > 0)
 						{
@@ -73,12 +100,12 @@ void navigate()
 								wintrack--;
 							}
 							// cout<<"wintrack : "<<wintrack<<"***********";
-
+							posx(1, 1);
 							for (unsigned int i = wintrack; i <= rowsize + wintrack - 1; i++)
 							{
 								char *tempFileName = new char[dirList[i].length() + 1];
 								strcpy(tempFileName, dirList[i].c_str());
-								display(tempFileName, root);
+								display(tempFileName, curPath);
 							}
 							xcor++;
 							pos();
@@ -93,7 +120,6 @@ void navigate()
 					if (xcor + wintrack < (totalFiles))
 					{
 						xcor++;
-						// cout<<"**********xcor"<<xcor<<"*****"<<endl;
 						if (xcor <= rowsize)
 						{
 							pos();
@@ -101,19 +127,18 @@ void navigate()
 						else if (xcor > rowsize && xcor + wintrack <= totalFiles)
 						{
 							cls;
-							// cout<<"***********2st if"<<"*****"<<endl;
 							lenRecord = getFilePrintingcount() - 1;
 							if (totalFiles > rowsize)
 							{
 								wintrack++;
 							}
 							// cout<<"wintrack : "<<wintrack<<"***********";
-
+							posx(1, 1);
 							for (int i = wintrack; i <= lenRecord + wintrack; i++)
 							{
 								char *tempFileName = new char[dirList[i].length() + 1];
 								strcpy(tempFileName, dirList[i].c_str());
-								display(tempFileName, root);
+								display(tempFileName, curPath);
 							}
 							xcor--;
 						}
@@ -126,12 +151,17 @@ void navigate()
 					// cout<<"RIGHT"<<endl;
 					if (!forw_stack.empty())
 					{
-						back_stack.push(string(curPath));
+						string cpath = string(curPath);
+						if (searchflag != 1)
+							back_stack.push(string(curPath));
 						string top = forw_stack.top();
 						forw_stack.pop();
 						strcpy(curPath, top.c_str());
-						cout << "******* RIGHT: " << curPath;
-						openDirectory(curPath);
+						// cout<<"******* RIGHT: "<<curPath;
+						searchflag = 0;
+						openDirecoty(curPath);
+						xcor = 1, ycor = 80;
+						pos();
 					}
 				}
 				// If LEFT-arrow Key press
@@ -140,12 +170,17 @@ void navigate()
 					// cout<<"LEFT"<<endl;
 					if (!back_stack.empty())
 					{
-						forw_stack.push(string(curPath));
+						string cpath = string(curPath);
+						if (searchflag != 1)
+							forw_stack.push(string(curPath));
 						string top = back_stack.top();
 						back_stack.pop();
 						strcpy(curPath, top.c_str());
-						cout << "******* : LEFT" << curPath;
-						openDirectory(curPath);
+						searchflag = 0;
+						// cout<<"******* : LEFT"<<curPath;
+						openDirecoty(curPath);
+						xcor = 1, ycor = 80;
+						pos();
 					}
 				}
 				else
@@ -155,33 +190,51 @@ void navigate()
 			// If HOME key pressed
 			else if (ch == 104 || ch == 72)
 			{
-				back_stack.push(string(curPath));
-				clearStack(forw_stack);
-				string newPath = ".";
-				strcpy(curPath, newPath.c_str());
-				openDirectory(curPath);
+				string cpath = string(curPath);
+				if (cpath != string(root))
+				{
+					if (searchflag != 1)
+						back_stack.push(string(curPath));
+					clearStack(forw_stack);
+					strcpy(curPath, root);
+					searchflag = 0;
+					openDirecoty(curPath);
+					xcor = 1, ycor = 80;
+					pos();
+				}
 			}
 			// If Back-Space key pressed
 			else if (ch == 127)
 			{
-				if (strcmp(curPath, root) != 0)
+				// cout<<"*************curPathr"<<curPath<<"***********";
+				string cpath = string(curPath);
+				if ((strcmp(curPath, root) != 0) && searchflag != 1)
 				{
+					// cout<<"**************Root : "<<root<<"***********";
 					back_stack.push(curPath);
 					clearStack(forw_stack);
 					setBackPath(curPath);
-					openDirectory(curPath);
-					// cout<<"*************curPathr"<<curPath<<"***********";
-					// cout<<"**************Root : "<<root<<"***********";
+					openDirecoty(curPath);
+					xcor = 1, ycor = 80;
+					pos();
 				}
 			}
 			// If Enter key pressed
 			else if (ch == 10)
 			{
-
 				// cout<<"********prev curPath : "<<curPath<<endl;
 				string curDir = dirList[xcor + wintrack - 1];
 				// cout<<"********CurDir/file  : "<<curDir<<endl;
-				string fullPath = string(curPath) + "/" + curDir;
+				string fullPath;
+				if (searchflag == 1)
+				{
+					fullPath = curDir;
+				}
+				else
+				{
+					fullPath = string(curPath) + "/" + curDir;
+				}
+
 				char *path = new char[fullPath.length() + 1];
 				strcpy(path, fullPath.c_str());
 				// cout<<"**************"<<path<<"************";
@@ -194,7 +247,7 @@ void navigate()
 				{
 					// cout<<"DIR"<<endl;
 					xcor = 1;
-
+					searchflag = 0;
 					if (curDir == string("."))
 					{
 					}
@@ -206,28 +259,60 @@ void navigate()
 					}
 					else
 					{
-
-						back_stack.push(string(curPath));
-						clearStack(forw_stack);
+						if (curPath != NULL)
+						{
+							back_stack.push(string(curPath));
+							clearStack(forw_stack);
+						}
 						curPath = path;
 					}
 
-					openDirectory(curPath);
+					openDirecoty(curPath);
 				}
 				// If file type is Regular File
 				else if ((sb.st_mode & S_IFMT) == S_IFREG)
 				{
-					string cmd = "xdg-open " + string(path);
-					char *filepath = new char[cmd.length() + 1];
-					strcpy(filepath, cmd.c_str());
 					// cout<<"**************File Path : "<<filepath<<"***************"<<endl;
-					system(filepath);
-					// cout<<"FILE"<<endl;
+					int fileOpen = open("/dev/null", O_WRONLY);
+					dup2(fileOpen, 2);
+					close(fileOpen);
+					pid_t processID = fork();
+					if (processID == 0)
+					{
+						execlp("xdg-open", "xdg-open", path, NULL);
+						exit(0);
+					}
 				}
 				else
 				{
-					cout << "unknown?" << endl;
-					cout << "****************************" << endl;
+					showError("Unknown File !!! :::::" + string(curDir));
+				}
+			}
+			// If : pressed , went into command mode
+			else if (ch == 58)
+			{
+				int lastLine = rowsize + 1;
+				posx(lastLine, 1);
+				printf("%c[2K", 27);
+				cout << ":";
+				// cout<<"going into command mode :"<<endl;
+				int result = startCommandMode();
+				xcor = 1;
+				pos();
+				if (result == 1)
+				{
+					openDirecoty(curPath);
+					// cout<<"goto out : ";
+				}
+				else if (result == 2)
+				{
+					// cout<<"search out : ";
+				}
+				else
+				{
+					// cout<<"Normal out : ";
+					searchflag = 0;
+					openDirecoty(curPath);
 				}
 			}
 		}
