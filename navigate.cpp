@@ -71,7 +71,7 @@ void navigate()
 
 		while (1)
 		{
-			int lastLine = rowsize + 1;
+			int lastLine = rowSize + 1;
 			posx(lastLine, 1);
 			cout << "-----NORMAL MODE-----";
 			pos();
@@ -85,7 +85,7 @@ void navigate()
 				// If UP-arrow Key press
 				if (ch == 'A')
 				{
-					if (xcor + wintrack > 1)
+					if (xcor + winTrack > 1)
 					{
 						xcor--;
 						if (xcor > 0)

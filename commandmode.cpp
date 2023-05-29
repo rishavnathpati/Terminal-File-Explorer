@@ -141,7 +141,7 @@ int startCommandMode()
             else if (command == "create_file")
             {
                 // cout<<"create_file command  : "<<endl;
-                createNewFile(tokens);
+                createNewFiles(tokens);
                 clearCommand();
             }
             else if (command == "create_dir")

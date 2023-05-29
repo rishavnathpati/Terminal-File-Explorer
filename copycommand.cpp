@@ -1,52 +1,51 @@
-
 #include "myheader.h"
 
-/// @brief It recursively copy all files/dir into destination path  
-/// @param path 
-/// @param des 
-void copydirectory(char *path, char *des)
+/// @brief Recursively copies all files and directories to the destination path
+/// @param sourcePath The source path
+/// @param destinationPath The destination path
+void copyDirectory(char *sourcePath, char *destinationPath)
 {
-	int status = mkdir(des, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+	int status = mkdir(destinationPath, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 	if (-1 == status)
 	{
-		showError("Error in creating the Directory in path :::::  " + string(path));
+		showError("Error in creating the directory in path: " + string(sourcePath));
 	}
 
-	DIR *d;
-	struct dirent *dir;
-	d = opendir(path);
-	if (d)
+	DIR *dir;
+	struct dirent *entry;
+	dir = opendir(sourcePath);
+	if (dir)
 	{
-		while ((dir = readdir(d)) != NULL)
+		while ((entry = readdir(dir)) != NULL)
 		{
-			if ((string(dir->d_name) == "..") || (string(dir->d_name) == "."))
+			if ((string(entry->d_name) == "..") || (string(entry->d_name) == "."))
 			{
+				continue;
 			}
 			else
 			{
-				string finalpath = string(path) + "/" + string(dir->d_name);
-				char *newpath = new char[finalpath.length() + 1];
-				strcpy(newpath, finalpath.c_str());
+				string sourceFilePath = string(sourcePath) + "/" + string(entry->d_name);
+				char *newSourcePath = new char[sourceFilePath.length() + 1];
+				strcpy(newSourcePath, sourceFilePath.c_str());
 
-				string finaldestpath = string(des) + "/" + string(dir->d_name);
-				char *newdestpath = new char[finaldestpath.length() + 1];
-				strcpy(newdestpath, finaldestpath.c_str());
+				string destinationFilePath = string(destinationPath) + "/" + string(entry->d_name);
+				char *newDestinationPath = new char[destinationFilePath.length() + 1];
+				strcpy(newDestinationPath, destinationFilePath.c_str());
 
 				struct stat sb;
-				if (stat(newpath, &sb) == -1)
+				if (stat(newSourcePath, &sb) == -1)
 				{
 					perror("lstat");
 				}
 				else
 				{
-
-					if ((S_ISDIR(sb.st_mode)))
+					if (S_ISDIR(sb.st_mode))
 					{
-						copydirectory(newpath, newdestpath);
+						copyDirectory(newSourcePath, newDestinationPath);
 					}
 					else
 					{
-						copyfile(newpath, newdestpath);
+						copyFile(newSourcePath, newDestinationPath);
 					}
 				}
 			}
@@ -54,78 +53,70 @@ void copydirectory(char *path, char *des)
 	}
 	else
 	{
-		showError("No such Directory found while copying with path :::::" + string(path));
+		showError("No such directory found while copying with path: " + string(sourcePath));
 	}
 }
 
-
-/// @brief It copy file from source path to destination path 
-/// @param path 
-/// @param des 
-void copyfile(char *path, char *des)
+/// @brief Copies a file from the source path to the destination path
+/// @param sourcePath The source path
+/// @param destinationPath The destination path
+void copyFile(char *sourcePath, char *destinationPath)
 {
-	// cout<<"\nsource path : "<<path<<endl;
-	// cout<<"\ndestination path :"<<des<<endl;
-
 	char block[1024];
 	int in, out;
 	int nread;
 
-	in = open(path, O_RDONLY);
-	out = open(des, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
+	in = open(sourcePath, O_RDONLY);
+	out = open(destinationPath, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
 	while ((nread = read(in, block, sizeof(block))) > 0)
 		write(out, block, nread);
 
-	struct stat sourcestat, deststat;
-	if (stat(path, &sourcestat) != -1)
+	struct stat sourceStat, destinationStat;
+	if (stat(sourcePath, &sourceStat) != -1)
 	{
 	}
-	if (stat(des, &deststat) != -1)
+	if (stat(destinationPath, &destinationStat) != -1)
 	{
 	}
 
-	int status1 = chown(des, sourcestat.st_uid, sourcestat.st_gid);
+	int status1 = chown(destinationPath, sourceStat.st_uid, sourceStat.st_gid);
 	if (status1 != 0)
 		showError("Error in setting ownership of file using chown");
 
-	int status2 = chmod(des, sourcestat.st_mode);
+	int status2 = chmod(destinationPath, sourceStat.st_mode);
 	if (status2 != 0)
 		showError("Error in setting permission of file using chmod");
 }
 
-/// @brief It copy all files/dir into destination path 
-/// @param list 
-void copycommand(vector<string> list)
+/// @brief Copies all files and directories to the destination path
+/// @param list The list of files/directories to copy
+void copyCommand(vector<string> list)
 {
 	unsigned int len = list.size();
 	if (len < 3)
 	{
-		showError("Less number of Argument in copy command !!!");
+		showError("Less number of arguments in copy command!");
 	}
 	else
 	{
-
 		for (unsigned int i = 1; i < len - 1; i++)
 		{
-			string newData = list[i];
-			string name = getFileNameFromPath(newData);
-			// cout<<"\nfilename : "<<name;
+			string sourcePath = list[i];
+			string fileName = getFileNameFromPath(sourcePath);
+			string destinationPath = list[len - 1] + "/" + fileName;
+			char *destination = new char[destinationPath.length() + 1];
+			strcpy(destination, destinationPath.c_str());
 
-			string destpath = list[len - 1];
-			destpath = destpath + "/" + name;
-			char *des = new char[destpath.length() + 1];
-			strcpy(des, destpath.c_str());
-			// cout<<"\ndespath in copy : "<<des<<endl;
+			char *source = new char[sourcePath.length() + 1];
+			strcpy(source, sourcePath.c_str());
 
-			char *path = new char[newData.length() + 1];
-			strcpy(path, newData.c_str());
-			if (isdirectory(path))
+			if (isDirectory(source))
 			{
-				copydirectory(path, des);
+				copyDirectory(source, destination);
 			}
 			else
 			{
-				copyfile(path, des);
+				copyFile(source, destination);
 			}
 		}
 	}
