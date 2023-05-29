@@ -1,16 +1,13 @@
-
-
 /************************************************************************
-**      This File is for includeing all header file ,extern            **    
-**      variables and global function required by other cpp files.     **
+**      This file includes all header files, extern variables, and     **
+**      global functions required by other CPP files.                  **
 **                                                                     **
 ************************************************************************/
 
-
 //**********************************************************************
-// All Header file included/imported here
+// Included/imported header files
 //**********************************************************************
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 #include <iostream>
 #include <iomanip>
 #include <string>
@@ -29,29 +26,28 @@
 using namespace std;
 
 //**********************************************************************
-// Declaring extern global variables
+// Extern global variables
 //**********************************************************************
 extern char *root;
-extern char* curPath;
-extern int searchflag;
-extern vector< string > dirList;
-extern stack <string> back_stack;
-extern stack <string> forw_stack;
-extern unsigned int rowsize,colsize;
+extern char *curPath;
+extern int searchFlag;
+extern vector<string> dirList;
+extern stack<string> backStack;
+extern stack<string> forwardStack;
+extern unsigned int rowSize, colSize;
 extern unsigned int totalFiles;
-extern int wintrack;
-
+extern int winTrack;
 
 //**********************************************************************
-// Declaring global method
+// Global method declarations
 //**********************************************************************
-void openDirecoty(const char *path);
+void openDirectory(const char *path);
 void display(const char *dirName, const char *root);
-int getFilePrintingcount();
+int getFilePrintingCount();
 void clearStack(stack<string> &s);
 void navigate();
 
-int isdirectory(char *newpath);
+int isDirectory(char *newPath);
 string getFileNameFromPath(string newDataw);
 
 int startCommandMode();
@@ -66,12 +62,12 @@ void removeFiles(vector<string> list);
 void removeSingleFile(char *path);
 void renameFiles(vector<string> list);
 string gotoPath(vector<string> list);
-void copycommand(vector<string> list);
-void copydirectory(char *path,char *des);
-void copyfile(char *path,char *des);
-void movecommand(vector<string> list);
-void takesnapshot(vector<string> list);
+void copyCommand(vector<string> list);
+void copyDirectory(char *path, char *destination);
+void copyFile(char *path, char *destination);
+void moveCommand(vector<string> list);
+void takeSnapshot(vector<string> list);
 void takeDirSnapshot(char *path, char *dump);
-int searchcommand(vector<string> list);
-void searchanything(char *path,string filename);
+int searchCommand(vector<string> list);
+void searchAnything(char *path, string filename);
 void showError(string str);
